@@ -49,9 +49,21 @@
 | **Backend** | FastAPI (Python) |
 | **AI Agent** | LangGraph + LangChain |
 | **LLM** | Ollama (dev) / Groq + Gemini Free (prod) |
-| **Database** | Supabase / MongoDB Atlas Free |
-| **Video Calls** | Daily.co / Jitsi Meet |
+| **Database** | MongoDB (via Docker) |
+| **Containerization** | Docker + Docker Compose |
 | **Hosting** | Vercel + Render (Free tier) |
+
+---
+
+## 🐳 Why Docker?
+
+Our team uses different operating systems (Linux & Windows). Docker ensures:
+- ✅ **Same environment everywhere** - No "works on my machine" issues
+- ✅ **One-command setup** - Just `docker-compose up`
+- ✅ **No dependency hell** - Python/Node versions don't clash
+- ✅ **Includes database** - MongoDB runs automatically
+
+> 📖 **New to the project?** Read the [Complete Project Documentation](docs/PROJECT_DOCS.md) for detailed explanations of everything!
 
 ---
 
