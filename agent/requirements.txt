@@ -1,0 +1,21 @@
+# AI Agent Dependencies
+fastapi>=0.109.0
+uvicorn[standard]>=0.27.0
+python-dotenv>=1.0.0
+
+# LangChain & LangGraph
+langchain>=0.1.0
+langgraph>=0.0.20
+langchain-core>=0.1.0
+
+# LLM Providers (FREE options)
+langchain-groq>=0.0.1       # Groq free tier
+langchain-google-genai>=0.0.5  # Google Gemini free
+ollama>=0.1.0               # Local Ollama
+
+# Memory & State
+redis>=5.0.0
+
+# HTTP
+httpx>=0.26.0
+pydantic>=2.5.0

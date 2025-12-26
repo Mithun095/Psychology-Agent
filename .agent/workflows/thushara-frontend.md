@@ -24,7 +24,17 @@ git checkout -b feature/frontend
 git push -u origin feature/frontend
 ```
 
-### Step 2: Setup Frontend
+### Step 2: Start with Docker (Recommended)
+```bash
+# From project root
+cp .env.example .env
+docker-compose up --build
+
+# Frontend will be at http://localhost:3000
+# Changes in frontend/ auto-reload!
+```
+
+### Alternative: Run Frontend Only
 ```bash
 cd frontend
 npm install

@@ -94,34 +94,52 @@ cycology-agent/
 
 ---
 
-## 🚀 Quick Start
+## 🚀 Quick Start (Docker)
+
+> **Why Docker?** Works the same on Linux, Windows, and Mac. No "it works on my machine" issues!
 
 ### Prerequisites
-- Node.js 18+
-- Python 3.10+
-- Ollama (for local LLM)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine (Linux)
+- [Ollama](https://ollama.ai/) (optional, for local LLM)
 
-### Setup
+### One-Command Setup
 
 ```bash
 # Clone the repository
 git clone https://github.com/your-org/cycology-agent.git
 cd cycology-agent
 
-# Frontend setup
-cd frontend
-npm install
-npm run dev
+# Copy environment file
+cp .env.example .env
 
-# Backend setup (new terminal)
-cd backend
-pip install -r requirements.txt
-uvicorn main:app --reload
+# Start everything with Docker! 🐳
+docker-compose up --build
+```
 
-# AI Agent (new terminal)
-cd agent
-pip install -r requirements.txt
-python main.py
+### Access the App
+| Service | URL |
+|---------|-----|
+| Frontend | http://localhost:3000 |
+| Backend API | http://localhost:8000 |
+| API Docs | http://localhost:8000/docs |
+| AI Agent | http://localhost:8001 |
+
+### Useful Commands
+```bash
+# Start in background
+docker-compose up -d
+
+# View logs
+docker-compose logs -f
+
+# Stop all services
+docker-compose down
+
+# Rebuild after code changes
+docker-compose up --build
+
+# Remove everything (including data)
+docker-compose down -v
 ```
 
 ---

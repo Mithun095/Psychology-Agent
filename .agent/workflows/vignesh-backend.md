@@ -24,13 +24,25 @@ git checkout -b feature/backend
 git push -u origin feature/backend
 ```
 
-### Step 2: Setup Backend
+### Step 2: Start with Docker (Recommended)
+```bash
+# From project root
+cp .env.example .env
+docker-compose up --build
+
+# Backend API at http://localhost:8000
+# API Docs at http://localhost:8000/docs
+# MongoDB available at localhost:27017
+# Changes in backend/ auto-reload!
+```
+
+### Alternative: Run Backend Only
 ```bash
 cd backend
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
+source venv/bin/activate  # Windows: venv\Scripts\activate
 pip install -r requirements.txt
-uvicorn main:app --reload
+uvicorn app.main:app --reload
 ```
 
 ---
