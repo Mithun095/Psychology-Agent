@@ -205,17 +205,46 @@ async def end_session(session_id: str):
     raise HTTPException(status_code=404, detail="Session not found")
 
 
+@app.get("/rag/status", tags=["RAG"])
+async def rag_status():
+    """
+    Check RAG (Retrieval-Augmented Generation) status.
+    
+    Returns information about Pinecone connection and vector count.
+    """
+    try:
+        from rag.config import check_pinecone_status
+        status = check_pinecone_status()
+        return {
+            "rag_enabled": status.get("index_exists", False),
+            "pinecone_configured": status.get("configured", False),
+            "pinecone_connected": status.get("connected", False),
+            "vector_count": status.get("vector_count", 0),
+        }
+    except ImportError:
+        return {
+            "rag_enabled": False,
+            "error": "RAG module not available"
+        }
+    except Exception as e:
+        return {
+            "rag_enabled": False,
+            "error": str(e)
+        }
+
+
 @app.get("/", tags=["System"])
 async def root():
     """Root endpoint with basic info."""
     return {
         "name": "Cycology AI Agent",
-        "version": "0.1.0",
-        "description": "Empathetic mental health support companion",
+        "version": "0.2.0",
+        "description": "Empathetic mental health support companion with RAG",
         "docs": "/docs",
         "endpoints": {
             "chat": "POST /chat - Send a message",
             "health": "GET /health - Check service health",
+            "rag_status": "GET /rag/status - Check RAG/vector DB status",
         }
     }
 

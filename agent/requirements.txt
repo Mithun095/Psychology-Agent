@@ -21,3 +21,20 @@ redis>=5.0.0
 httpx>=0.26.0
 pydantic>=2.5.0
 pydantic-settings>=2.1.0
+
+# ============================================
+# RAG & Vector Database
+# ============================================
+
+# Vector Database
+pinecone-client>=3.0.0
+
+# Embeddings (FREE, runs locally)
+sentence-transformers>=2.2.0
+
+# Data Processing
+datasets>=2.14.0            # Hugging Face datasets
+pandas>=2.0.0
+
+# For data downloads (optional)
+kaggle>=1.5.0

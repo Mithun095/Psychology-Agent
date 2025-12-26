@@ -62,6 +62,7 @@ services:
       - "8001:8001"
     volumes:
       - ./agent:/app
+      - agent-data:/app/data/raw # Persist downloaded data
     environment:
       - ENVIRONMENT=development
       # For Ollama (local LLM)
@@ -70,6 +71,9 @@ services:
       - GROQ_API_KEY=${GROQ_API_KEY:-}
       # For Google Gemini (free tier)
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      # For Pinecone (vector database)
+      - PINECONE_API_KEY=${PINECONE_API_KEY:-}
+      - PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME:-cycology-mental-health}
     networks:
       - cycology-network
     extra_hosts:
@@ -108,3 +112,4 @@ networks:
 
 volumes:
   mongo-data:
+  agent-data: # Persist downloaded training data
