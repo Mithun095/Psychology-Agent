@@ -1,4 +1,4 @@
-# 🟢 Cycology Backend - FastAPI
+# 🟢 Psychology Backend - FastAPI
 
 **Owner**: Vignesh (Backend Developer)
 
@@ -7,7 +7,7 @@
 ### Using Docker (Recommended)
 ```bash
 # From project root
-cd cycology-agent-main
+cd "Psychology Agent"
 docker-compose up --build backend mongo redis
 
 # Backend available at:
@@ -73,7 +73,7 @@ Visit http://localhost:8000/docs for interactive API testing!
 Required environment variables (set in docker-compose.yml or .env):
 
 ```env
-DATABASE_URL=mongodb://mongo:27017/cycology
+DATABASE_URL=mongodb://mongo:27017/psychology
 AGENT_URL=http://agent:8001
 REDIS_URL=redis://redis:6379
 SECRET_KEY=your-secret-key-here

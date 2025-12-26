@@ -1,6 +1,6 @@
 # Mental Health Counseling Training Data
 
-This directory contains training data for the Cycology mental health support agent.
+This directory contains training data for the Psychology mental health support agent.
 
 ## Data Sources
 

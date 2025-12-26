@@ -1,5 +1,5 @@
 """
-Main LangGraph Agent for Cycology.
+Main LangGraph Agent for Psychology.
 
 This is the core agent that orchestrates the mental health support
 conversation, integrating mood analysis, crisis detection, and

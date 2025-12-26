@@ -1,6 +1,6 @@
-# Cycology Agent - Complete Project Documentation
+# Psychology Agent - Complete Project Documentation
 
-> A comprehensive guide to understanding, setting up, and contributing to the Cycology Agent project.
+> A comprehensive guide to understanding, setting up, and contributing to the Psychology Agent project.
 
 ---
 
@@ -20,9 +20,9 @@
 
 ## About the Project
 
-### What is Cycology Agent?
+### What is Psychology Agent?
 
-**Cycology Agent** is an AI-powered mental health support platform designed as an NGO initiative. It provides a safe, anonymous space for people struggling with mental health challenges to receive support.
+**Psychology Agent** is an AI-powered mental health support platform designed as an NGO initiative. It provides a safe, anonymous space for people struggling with mental health challenges to receive support.
 
 ### The Problem We're Solving
 
@@ -151,7 +151,7 @@ Docker creates **containers** - lightweight virtual environments that work ident
 ## Folder Structure Explained
 
 ```
-cycology-agent/
+Psychology Agent/
 │
 ├── 📁 frontend/                 # THUSHARA'S DOMAIN
 │   ├── 📁 src/
@@ -286,10 +286,10 @@ cycology-agent/
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/cycology-agent.git
+git clone https://github.com/your-org/psychology-agent.git
 
 # Navigate to project
-cd cycology-agent
+cd "Psychology Agent"
 
 # Copy environment file
 cp .env.example .env
@@ -384,8 +384,8 @@ This prevents merge conflicts entirely.
 
 1. **Clone the repo**
    ```bash
-   git clone https://github.com/your-org/cycology-agent.git
-   cd cycology-agent
+   git clone https://github.com/your-org/psychology-agent.git
+   cd "Psychology Agent"
    ```
 
 2. **Create your branch**

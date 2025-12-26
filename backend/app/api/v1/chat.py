@@ -175,7 +175,7 @@ async def websocket_chat(websocket: WebSocket, session_id: str):
     await manager.send_personal_message(
         {
             "type": "connection",
-            "message": "Connected to Cycology Agent",
+            "message": "Connected to Psychology Agent",
             "session_id": session_id
         },
         user_id

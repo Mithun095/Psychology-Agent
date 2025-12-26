@@ -1,5 +1,5 @@
 """
-Cycology Backend Application
+Psychology Backend Application
 
 Author: Vignesh (Backend Developer)
 """

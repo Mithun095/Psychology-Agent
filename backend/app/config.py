@@ -16,8 +16,8 @@ class Settings(BaseSettings):
     ENVIRONMENT: str = "development"
     
     # Database
-    DATABASE_URL: str = "mongodb://mongo:27017/cycology"
-    DATABASE_NAME: str = "cycology"
+    DATABASE_URL: str = "mongodb://mongo:27017/psychology"
+    DATABASE_NAME: str = "psychology"
     
     # AI Agent
     AGENT_URL: str = "http://agent:8001"
@@ -37,7 +37,7 @@ class Settings(BaseSettings):
     ]
     
     # App Settings
-    APP_NAME: str = "Cycology Agent"
+    APP_NAME: str = "Psychology Agent"
     API_V1_PREFIX: str = "/api/v1"
     
     class Config:

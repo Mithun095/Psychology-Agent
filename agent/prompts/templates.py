@@ -1,5 +1,5 @@
 """
-Response Templates for Cycology Agent.
+Response Templates for Psychology Agent.
 
 Pre-crafted empathetic responses, grounding exercises, and crisis resources
 that can be inserted or adapted in agent responses.
@@ -166,7 +166,7 @@ def format_crisis_resources(region: str = "india") -> str:
 # ============================================================================
 
 RESPONSE_TEMPLATES: Dict[str, str] = {
-    "greeting": """Hello! I'm Cycology, and I'm here to listen and support you. 
+    "greeting": """Hello! I'm Psychology, and I'm here to listen and support you. 
 
 Whether you want to talk about what's on your mind, work through some feelings, or just have someone to chat with - I'm here. 
 

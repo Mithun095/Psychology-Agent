@@ -1,1 +1,1 @@
-"""RAG (Retrieval-Augmented Generation) module for Cycology Agent."""
+"""RAG (Retrieval-Augmented Generation) module for Psychology Agent."""

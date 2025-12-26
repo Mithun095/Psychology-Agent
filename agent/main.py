@@ -1,5 +1,5 @@
 """
-Cycology AI Agent - FastAPI Entry Point.
+Psychology AI Agent - FastAPI Entry Point.
 
 Exposes the mental health support agent via REST API endpoints.
 """
@@ -36,7 +36,7 @@ sessions: dict = {}
 async def lifespan(app: FastAPI):
     """Application lifespan handler."""
     # Startup
-    print("🧠 Cycology Agent Starting...")
+    print("🧠 Psychology Agent Starting...")
     
     # Check available LLM providers
     try:
@@ -61,7 +61,7 @@ async def lifespan(app: FastAPI):
     yield
     
     # Shutdown
-    print("👋 Cycology Agent shutting down...")
+    print("👋 Psychology Agent shutting down...")
 
 
 # ============================================================================
@@ -69,7 +69,7 @@ async def lifespan(app: FastAPI):
 # ============================================================================
 
 app = FastAPI(
-    title="Cycology AI Agent",
+    title="Psychology AI Agent",
     description="Empathetic mental health support chatbot powered by LangGraph",
     version="0.1.0",
     lifespan=lifespan,
@@ -237,7 +237,7 @@ async def rag_status():
 async def root():
     """Root endpoint with basic info."""
     return {
-        "name": "Cycology AI Agent",
+        "name": "Psychology AI Agent",
         "version": "0.2.0",
         "description": "Empathetic mental health support companion with RAG",
         "docs": "/docs",

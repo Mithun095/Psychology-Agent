@@ -1,5 +1,5 @@
 """
-Crisis Detection System for Cycology Agent.
+Crisis Detection System for Psychology Agent.
 
 Multi-layer crisis detection using keyword matching, pattern recognition,
 and contextual analysis to identify users who may be at risk.

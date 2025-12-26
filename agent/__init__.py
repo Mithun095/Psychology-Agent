@@ -1,5 +1,5 @@
 """
-Cycology AI Agent Package.
+Psychology AI Agent Package.
 
 An empathetic mental health support chatbot powered by LangGraph.
 """

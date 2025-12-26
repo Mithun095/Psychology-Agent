@@ -1,5 +1,5 @@
 """
-Cycology Agent - Backend API
+Psychology Agent - Backend API
 FastAPI application entry point
 
 Author: Vignesh (Backend Developer)
@@ -18,19 +18,19 @@ from app.utils.database import connect_to_mongo, close_mongo_connection
 async def lifespan(app: FastAPI):
     """Application lifespan events"""
     # Startup
-    print("🚀 Starting Cycology Backend...")
+    print("🚀 Starting Psychology Backend...")
     await connect_to_mongo()
     print("✅ Connected to MongoDB")
     yield
     # Shutdown
-    print("👋 Shutting down Cycology Backend...")
+    print("👋 Shutting down Psychology Backend...")
     await close_mongo_connection()
     print("✅ Closed MongoDB connection")
 
 
 # Initialize FastAPI app
 app = FastAPI(
-    title="Cycology Agent API",
+    title="Psychology Agent API",
     description="Mental Health Support Platform - Backend API",
     version="1.0.0",
     lifespan=lifespan,
@@ -54,9 +54,9 @@ async def root():
     """Root endpoint - Health check"""
     return {
         "status": "healthy",
-        "service": "Cycology Backend API",
+        "service": "Psychology Backend API",
         "version": "1.0.0",
-        "message": "Welcome to Cycology Agent API - Mental Health Support Platform"
+        "message": "Welcome to Psychology Agent API - Mental Health Support Platform"
     }
 
 

@@ -1,4 +1,4 @@
-# 🧠 Cycology Agent
+# 🧠 Psychology Agent
 
 > **An AI-powered mental health support companion** - A free, anonymous platform helping those who feel alone, depressed, or need someone to talk to.
 
@@ -10,7 +10,7 @@
 
 ## 🌟 Vision
 
-**Cycology Agent** is an NGO initiative providing free mental health support to anyone who needs it. We believe everyone deserves someone to listen, understand, and stand by them during difficult times.
+**Psychology Agent** is an NGO initiative providing free mental health support to anyone who needs it. We believe everyone deserves someone to listen, understand, and stand by them during difficult times.
 
 ### Who is this for?
 - 💙 People feeling lonely or isolated
@@ -80,7 +80,7 @@ Our team uses different operating systems (Linux & Windows). Docker ensures:
 ## 📁 Project Structure
 
 ```
-cycology-agent/
+psychology-agent/
 ├── frontend/          # 🔵 Next.js app (Thushara)
 │   ├── src/
 │   │   ├── components/
@@ -118,8 +118,8 @@ cycology-agent/
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/cycology-agent.git
-cd cycology-agent
+git clone https://github.com/your-org/psychology-agent.git
+cd psychology-agent
 
 # Copy environment file
 cp .env.example .env

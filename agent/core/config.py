@@ -1,5 +1,5 @@
 """
-LLM Configuration for Cycology Agent.
+LLM Configuration for Psychology Agent.
 
 Supports multiple FREE LLM providers with automatic fallback:
 1. Ollama (local) - Development default

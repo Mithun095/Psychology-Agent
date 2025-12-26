@@ -1,5 +1,5 @@
 """
-RAG Configuration for Cycology Agent.
+RAG Configuration for Psychology Agent.
 
 Configures Pinecone vector database connection and index settings.
 """
@@ -16,7 +16,7 @@ class RAGSettings(BaseSettings):
     
     # Pinecone
     pinecone_api_key: Optional[str] = None
-    pinecone_index_name: str = "cycology-mental-health"
+    pinecone_index_name: str = "psychology-mental-health"
     pinecone_cloud: str = "aws"
     pinecone_region: str = "us-east-1"
     

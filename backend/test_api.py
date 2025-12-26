@@ -176,7 +176,7 @@ def test_appointments(token):
 def main():
     """Run all tests"""
     print("\n" + "="*50)
-    print("  CYCOLOGY BACKEND API TESTING")
+    print("  PSYCHOLOGY BACKEND API TESTING")
     print("  Make sure backend is running at http://localhost:8000")
     print("="*50)
     

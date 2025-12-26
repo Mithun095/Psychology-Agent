@@ -1,5 +1,5 @@
 """
-Mood Analysis System for Cycology Agent.
+Mood Analysis System for Psychology Agent.
 
 Analyzes user messages to detect emotional state and track mood changes
 over the conversation.

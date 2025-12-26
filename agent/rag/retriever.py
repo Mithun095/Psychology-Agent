@@ -1,5 +1,5 @@
 """
-Vector Search Retriever for Cycology Agent.
+Vector Search Retriever for Psychology Agent.
 
 Retrieves relevant counseling examples from Pinecone based on semantic similarity.
 """

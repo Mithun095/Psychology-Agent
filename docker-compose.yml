@@ -1,4 +1,4 @@
-# Docker Compose for Cycology Agent
+# Docker Compose for Psychology Agent
 # Run: docker-compose up --build
 
 version: '3.9'
@@ -11,7 +11,7 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
-    container_name: cycology-frontend
+    container_name: psychology-frontend
     ports:
       - "3000:3000"
     volumes:
@@ -25,7 +25,7 @@ services:
     depends_on:
       - backend
     networks:
-      - cycology-network
+      - psychology-network
 
   # ============================================
   # BACKEND - FastAPI (Vignesh)
@@ -34,21 +34,21 @@ services:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    container_name: cycology-backend
+    container_name: psychology-backend
     ports:
       - "8000:8000"
     volumes:
       - ./backend:/app
     environment:
       - ENVIRONMENT=development
-      - DATABASE_URL=mongodb://mongo:27017/cycology
+      - DATABASE_URL=mongodb://mongo:27017/psychology
       - AGENT_URL=http://agent:8001
       - REDIS_URL=redis://redis:6379
     depends_on:
       - mongo
       - redis
     networks:
-      - cycology-network
+      - psychology-network
 
   # ============================================
   # AI AGENT - LangGraph (Myth)
@@ -57,7 +57,7 @@ services:
     build:
       context: ./agent
       dockerfile: Dockerfile
-    container_name: cycology-agent
+    container_name: psychology-agent
     ports:
       - "8001:8001"
     volumes:
@@ -73,9 +73,9 @@ services:
       - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
       # For Pinecone (vector database)
       - PINECONE_API_KEY=${PINECONE_API_KEY:-}
-      - PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME:-cycology-mental-health}
+      - PINECONE_INDEX_NAME=${PINECONE_INDEX_NAME:-psychology-mental-health}
     networks:
-      - cycology-network
+      - psychology-network
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -84,30 +84,30 @@ services:
   # ============================================
   mongo:
     image: mongo:7
-    container_name: cycology-mongo
+    container_name: psychology-mongo
     ports:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
     networks:
-      - cycology-network
+      - psychology-network
 
   # ============================================
   # CACHE - Redis (for sessions & real-time)
   # ============================================
   redis:
     image: redis:alpine
-    container_name: cycology-redis
+    container_name: psychology-redis
     ports:
       - "6379:6379"
     networks:
-      - cycology-network
+      - psychology-network
 
 # ============================================
 # NETWORKS & VOLUMES
 # ============================================
 networks:
-  cycology-network:
+  psychology-network:
     driver: bridge
 
 volumes:

@@ -1,4 +1,4 @@
-# Cycology AI Agent
+# Psychology AI Agent
 
 Empathetic mental health support chatbot powered by LangGraph with RAG (Retrieval-Augmented Generation).
 
@@ -162,8 +162,8 @@ docker-compose up agent
 
 # Or build standalone
 cd agent
-docker build -t cycology-agent .
-docker run -p 8001:8001 --env-file .env cycology-agent
+docker build -t psychology-agent .
+docker run -p 8001:8001 --env-file .env psychology-agent
 ```
 
 ## Crisis Detection Levels

@@ -1,5 +1,5 @@
 """
-Data Ingestion Pipeline for Cycology Agent.
+Data Ingestion Pipeline for Psychology Agent.
 
 Loads counseling conversations and upserts them to Pinecone.
 """

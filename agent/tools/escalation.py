@@ -1,5 +1,5 @@
 """
-Escalation Logic for Cycology Agent.
+Escalation Logic for Psychology Agent.
 
 Determines when a conversation should be escalated to professional
 human support based on crisis levels and conversation patterns.

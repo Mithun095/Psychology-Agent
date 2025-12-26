@@ -1,6 +1,6 @@
-# Contributing to Cycology Agent
+# Contributing to Psychology Agent
 
-Thank you for wanting to contribute to Cycology Agent! 💚
+Thank you for wanting to contribute to Psychology Agent! 💚
 
 This document outlines our git workflow and contribution guidelines to ensure smooth collaboration.
 
@@ -33,8 +33,8 @@ This document outlines our git workflow and contribution guidelines to ensure sm
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-org/cycology-agent.git
-cd cycology-agent
+git clone https://github.com/your-org/psychology-agent.git
+cd psychology-agent
 
 # Create your feature branch
 # For Thushara:

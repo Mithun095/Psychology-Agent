@@ -1,5 +1,5 @@
 """
-Conversation Memory for Cycology Agent.
+Conversation Memory for Psychology Agent.
 
 Provides persistent storage for conversation history using Redis,
 with automatic summarization for long conversations.
@@ -103,12 +103,12 @@ class RedisStore(MemoryStore):
     
     async def save(self, session_id: str, data: dict) -> None:
         client = await self._get_client()
-        key = f"cycology:session:{session_id}"
+        key = f"psychology:session:{session_id}"
         await client.setex(key, self._ttl_seconds, json.dumps(data))
     
     async def load(self, session_id: str) -> Optional[dict]:
         client = await self._get_client()
-        key = f"cycology:session:{session_id}"
+        key = f"psychology:session:{session_id}"
         data = await client.get(key)
         if data:
             return json.loads(data)
@@ -116,12 +116,12 @@ class RedisStore(MemoryStore):
     
     async def delete(self, session_id: str) -> None:
         client = await self._get_client()
-        key = f"cycology:session:{session_id}"
+        key = f"psychology:session:{session_id}"
         await client.delete(key)
     
     async def exists(self, session_id: str) -> bool:
         client = await self._get_client()
-        key = f"cycology:session:{session_id}"
+        key = f"psychology:session:{session_id}"
         return await client.exists(key) > 0
 
 

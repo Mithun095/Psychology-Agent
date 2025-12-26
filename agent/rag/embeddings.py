@@ -1,5 +1,5 @@
 """
-Embedding Generation for Cycology Agent.
+Embedding Generation for Psychology Agent.
 
 Uses Sentence-Transformers for FREE, local embedding generation.
 No API costs, runs entirely on your machine.

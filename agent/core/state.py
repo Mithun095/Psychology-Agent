@@ -1,5 +1,5 @@
 """
-Agent State Management for Cycology Agent.
+Agent State Management for Psychology Agent.
 
 Defines the state structure used by LangGraph for tracking
 conversation context, mood, and crisis levels.
