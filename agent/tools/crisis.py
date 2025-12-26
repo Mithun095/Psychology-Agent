@@ -8,8 +8,16 @@ and contextual analysis to identify users who may be at risk.
 import re
 from typing import Tuple, List, Set
 from dataclasses import dataclass
+from enum import Enum
 
-from ..core.state import CrisisLevel
+
+class CrisisLevel(str, Enum):
+    """Crisis severity levels."""
+    NONE = "none"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
 
 
 @dataclass

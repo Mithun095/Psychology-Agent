@@ -6,7 +6,6 @@ that can be inserted or adapted in agent responses.
 """
 
 from typing import Dict, List
-from ..core.state import MoodType, CrisisLevel
 
 
 # ============================================================================

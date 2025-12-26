@@ -6,7 +6,30 @@ emphasizing empathy, validation, and appropriate boundaries.
 """
 
 from typing import Optional
-from ..core.state import MoodType, CrisisLevel
+from enum import Enum
+
+
+class MoodType(str, Enum):
+    """Detected mood categories."""
+    HAPPY = "happy"
+    CONTENT = "content"
+    NEUTRAL = "neutral"
+    SAD = "sad"
+    ANXIOUS = "anxious"
+    ANGRY = "angry"
+    CONFUSED = "confused"
+    HOPEFUL = "hopeful"
+    OVERWHELMED = "overwhelmed"
+    LONELY = "lonely"
+
+
+class CrisisLevel(str, Enum):
+    """Crisis severity levels."""
+    NONE = "none"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
 
 
 # ============================================================================

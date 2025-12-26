@@ -8,8 +8,21 @@ over the conversation.
 import re
 from typing import Tuple, List, Dict
 from dataclasses import dataclass
+from enum import Enum
 
-from ..core.state import MoodType
+
+class MoodType(str, Enum):
+    """Detected mood categories."""
+    HAPPY = "happy"
+    CONTENT = "content"
+    NEUTRAL = "neutral"
+    SAD = "sad"
+    ANXIOUS = "anxious"
+    ANGRY = "angry"
+    CONFUSED = "confused"
+    HOPEFUL = "hopeful"
+    OVERWHELMED = "overwhelmed"
+    LONELY = "lonely"
 
 
 @dataclass

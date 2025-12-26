@@ -7,8 +7,30 @@ human support based on crisis levels and conversation patterns.
 
 from typing import Optional
 from dataclasses import dataclass
+from enum import Enum
 
-from ..core.state import CrisisLevel, MoodType
+
+class CrisisLevel(str, Enum):
+    """Crisis severity levels."""
+    NONE = "none"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class MoodType(str, Enum):
+    """Detected mood categories."""
+    HAPPY = "happy"
+    CONTENT = "content"
+    NEUTRAL = "neutral"
+    SAD = "sad"
+    ANXIOUS = "anxious"
+    ANGRY = "angry"
+    CONFUSED = "confused"
+    HOPEFUL = "hopeful"
+    OVERWHELMED = "overwhelmed"
+    LONELY = "lonely"
 
 
 @dataclass

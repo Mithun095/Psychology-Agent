@@ -6,24 +6,73 @@ conversation, integrating mood analysis, crisis detection, and
 empathetic response generation.
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, List
+from enum import Enum
 import uuid
 
-from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage, SystemMessage, BaseMessage
 from langgraph.graph import StateGraph, END
+from typing_extensions import TypedDict, Annotated
+from langgraph.graph.message import add_messages
 
-from .state import AgentState, create_initial_state, MoodType, CrisisLevel
-from .config import get_llm
-from ..prompts.system import get_system_prompt, CRISIS_SYSTEM_PROMPT
-from ..prompts.templates import (
-    format_crisis_resources,
-    EMPATHY_RESPONSES,
-    GROUNDING_EXERCISES,
-    RESPONSE_TEMPLATES,
-)
-from ..tools.crisis import detect_crisis, CrisisAssessment
-from ..tools.mood import analyze_mood, MoodAssessment
-from ..tools.escalation import should_escalate
+
+# ============================================================================
+# LOCAL TYPE DEFINITIONS (avoiding circular imports)
+# ============================================================================
+
+class MoodType(str, Enum):
+    """Detected mood categories."""
+    HAPPY = "happy"
+    CONTENT = "content"
+    NEUTRAL = "neutral"
+    SAD = "sad"
+    ANXIOUS = "anxious"
+    ANGRY = "angry"
+    CONFUSED = "confused"
+    HOPEFUL = "hopeful"
+    OVERWHELMED = "overwhelmed"
+    LONELY = "lonely"
+
+
+class CrisisLevel(str, Enum):
+    """Crisis severity levels."""
+    NONE = "none"
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    CRITICAL = "critical"
+
+
+class AgentState(TypedDict):
+    """LangGraph agent state for mental health conversations."""
+    messages: Annotated[List[BaseMessage], add_messages]
+    session_id: str
+    current_mood: MoodType
+    mood_score: float
+    crisis_level: CrisisLevel
+    crisis_keywords_found: List[str]
+    should_escalate: bool
+    response_style: str
+
+
+# ============================================================================
+# IMPORT TOOLS (using sys.path workaround for direct execution)
+# ============================================================================
+
+import sys
+import os
+
+# Add parent directory to path for direct script execution
+_current_dir = os.path.dirname(os.path.abspath(__file__))
+_parent_dir = os.path.dirname(_current_dir)
+if _parent_dir not in sys.path:
+    sys.path.insert(0, _parent_dir)
+
+from tools.crisis import detect_crisis, CrisisAssessment
+from tools.mood import analyze_mood, MoodAssessment
+from prompts.system import get_system_prompt, CRISIS_SYSTEM_PROMPT
+from prompts.templates import format_crisis_resources, RESPONSE_TEMPLATES
+from core.config import get_llm
 
 
 # ============================================================================
@@ -31,16 +80,11 @@ from ..tools.escalation import should_escalate
 # ============================================================================
 
 def analyze_mood_node(state: AgentState) -> Dict[str, Any]:
-    """
-    Analyze the mood from the latest user message.
-    
-    This node runs mood detection on the incoming message and
-    updates the state with mood information.
-    """
+    """Analyze the mood from the latest user message."""
     messages = state.get("messages", [])
     
     if not messages:
-        return state
+        return {}
     
     # Get the latest user message
     latest_message = None
@@ -50,28 +94,37 @@ def analyze_mood_node(state: AgentState) -> Dict[str, Any]:
             break
     
     if not latest_message:
-        return state
+        return {}
     
     # Analyze mood
     assessment: MoodAssessment = analyze_mood(latest_message)
     
+    # Map the mood type from tools module to local enum
+    mood_map = {
+        "happy": MoodType.HAPPY,
+        "content": MoodType.CONTENT,
+        "neutral": MoodType.NEUTRAL,
+        "sad": MoodType.SAD,
+        "anxious": MoodType.ANXIOUS,
+        "angry": MoodType.ANGRY,
+        "confused": MoodType.CONFUSED,
+        "hopeful": MoodType.HOPEFUL,
+        "overwhelmed": MoodType.OVERWHELMED,
+        "lonely": MoodType.LONELY,
+    }
+    
     return {
-        "current_mood": assessment.mood,
+        "current_mood": mood_map.get(assessment.mood.value, MoodType.NEUTRAL),
         "mood_score": assessment.score,
     }
 
 
 def detect_crisis_node(state: AgentState) -> Dict[str, Any]:
-    """
-    Check the latest message for crisis indicators.
-    
-    This is a critical safety node that identifies users
-    who may be at risk and adjusts the response strategy.
-    """
+    """Check the latest message for crisis indicators."""
     messages = state.get("messages", [])
     
     if not messages:
-        return state
+        return {}
     
     # Get the latest user message
     latest_message = None
@@ -81,69 +134,54 @@ def detect_crisis_node(state: AgentState) -> Dict[str, Any]:
             break
     
     if not latest_message:
-        return state
+        return {}
     
     # Detect crisis
     assessment: CrisisAssessment = detect_crisis(latest_message)
     
-    # Determine response style based on crisis level
+    # Map crisis level
+    crisis_map = {
+        "none": CrisisLevel.NONE,
+        "low": CrisisLevel.LOW,
+        "medium": CrisisLevel.MEDIUM,
+        "high": CrisisLevel.HIGH,
+        "critical": CrisisLevel.CRITICAL,
+    }
+    
+    crisis_level = crisis_map.get(assessment.level.value, CrisisLevel.NONE)
+    
+    # Determine response style
     response_style = {
         CrisisLevel.CRITICAL: "crisis",
         CrisisLevel.HIGH: "crisis",
         CrisisLevel.MEDIUM: "resources",
         CrisisLevel.LOW: "supportive",
         CrisisLevel.NONE: "supportive",
-    }.get(assessment.level, "supportive")
+    }.get(crisis_level, "supportive")
     
     return {
-        "crisis_level": assessment.level,
+        "crisis_level": crisis_level,
         "crisis_keywords_found": assessment.keywords_found,
         "response_style": response_style,
     }
 
 
 def check_escalation_node(state: AgentState) -> Dict[str, Any]:
-    """
-    Determine if the conversation should be escalated to professional support.
-    """
+    """Determine if the conversation should be escalated."""
     crisis_level = state.get("crisis_level", CrisisLevel.NONE)
-    current_mood = state.get("current_mood", MoodType.NEUTRAL)
-    mood_trend = state.get("mood_trend", "stable")
-    messages = state.get("messages", [])
     
-    # Count conversation turns
-    turn_count = sum(1 for m in messages if isinstance(m, HumanMessage))
-    
-    decision = should_escalate(
-        crisis_level=crisis_level,
-        current_mood=current_mood,
-        mood_trend=mood_trend,
-        conversation_turns=turn_count,
-    )
+    should_escalate = crisis_level in [CrisisLevel.CRITICAL, CrisisLevel.HIGH]
     
     return {
-        "should_escalate": decision.should_escalate,
-        "escalation_reason": decision.reason,
+        "should_escalate": should_escalate,
     }
 
 
 async def generate_response_node(state: AgentState) -> Dict[str, Any]:
-    """
-    Generate an empathetic response using the LLM.
-    
-    This node creates the actual response to the user, taking into
-    account mood, crisis level, and conversation context.
-    """
+    """Generate an empathetic response using the LLM."""
     messages = state.get("messages", [])
     current_mood = state.get("current_mood", MoodType.NEUTRAL)
     crisis_level = state.get("crisis_level", CrisisLevel.NONE)
-    response_style = state.get("response_style", "supportive")
-    
-    # Get appropriate system prompt
-    system_prompt = get_system_prompt(
-        mood=current_mood,
-        crisis_level=crisis_level,
-    )
     
     # Handle critical crisis with immediate intervention
     if crisis_level in [CrisisLevel.CRITICAL, CrisisLevel.HIGH]:
@@ -151,10 +189,21 @@ async def generate_response_node(state: AgentState) -> Dict[str, Any]:
         crisis_response = RESPONSE_TEMPLATES["crisis_immediate"].format(
             crisis_resources=crisis_resources
         )
-        
         return {
             "messages": [AIMessage(content=crisis_response)],
         }
+    
+    # Get appropriate system prompt
+    from prompts.system import MoodType as PromptMoodType, CrisisLevel as PromptCrisisLevel
+    
+    # Map to prompt module's types
+    prompt_mood = PromptMoodType(current_mood.value)
+    prompt_crisis = PromptCrisisLevel(crisis_level.value)
+    
+    system_prompt = get_system_prompt(
+        mood=prompt_mood,
+        crisis_level=prompt_crisis,
+    )
     
     # Build messages for LLM
     llm_messages = [SystemMessage(content=system_prompt)]
@@ -170,6 +219,7 @@ async def generate_response_node(state: AgentState) -> Dict[str, Any]:
         response_content = response.content
     except Exception as e:
         # Fallback to a safe, empathetic default
+        print(f"LLM Error: {e}")
         response_content = (
             "I hear you, and I'm here to listen. Sometimes just sharing "
             "what's on your mind can help. Would you like to tell me more "
@@ -182,36 +232,11 @@ async def generate_response_node(state: AgentState) -> Dict[str, Any]:
 
 
 # ============================================================================
-# ROUTING FUNCTIONS
-# ============================================================================
-
-def should_respond_crisis(state: AgentState) -> str:
-    """Route based on crisis level."""
-    crisis_level = state.get("crisis_level", CrisisLevel.NONE)
-    
-    if crisis_level in [CrisisLevel.CRITICAL, CrisisLevel.HIGH]:
-        return "crisis_response"
-    return "normal_response"
-
-
-# ============================================================================
 # GRAPH CONSTRUCTION
 # ============================================================================
 
 def create_agent() -> StateGraph:
-    """
-    Create the LangGraph agent for mental health support.
-    
-    Graph flow:
-    1. Analyze mood from user message
-    2. Detect crisis indicators
-    3. Check escalation needs
-    4. Generate empathetic response
-    
-    Returns:
-        Compiled StateGraph
-    """
-    # Create the graph
+    """Create the LangGraph agent for mental health support."""
     graph = StateGraph(AgentState)
     
     # Add nodes
@@ -236,7 +261,6 @@ def create_agent() -> StateGraph:
 # HIGH-LEVEL API
 # ============================================================================
 
-# Cached agent instance
 _agent = None
 
 
@@ -248,33 +272,37 @@ def get_agent() -> StateGraph:
     return _agent
 
 
+def create_initial_state(session_id: str) -> AgentState:
+    """Create a fresh agent state for a new conversation."""
+    return AgentState(
+        messages=[],
+        session_id=session_id,
+        current_mood=MoodType.NEUTRAL,
+        mood_score=0.0,
+        crisis_level=CrisisLevel.NONE,
+        crisis_keywords_found=[],
+        should_escalate=False,
+        response_style="supportive",
+    )
+
+
 async def run_agent(
     message: str,
     session_id: Optional[str] = None,
     existing_state: Optional[AgentState] = None,
 ) -> Dict[str, Any]:
-    """
-    Run the agent with a user message.
-    
-    Args:
-        message: User's message
-        session_id: Session identifier (generated if not provided)
-        existing_state: Existing state to continue from
-        
-    Returns:
-        Dictionary with response and updated state information
-    """
+    """Run the agent with a user message."""
     agent = get_agent()
     
     # Create or use existing state
     if existing_state:
-        state = existing_state
+        state = dict(existing_state)
     else:
         session_id = session_id or str(uuid.uuid4())
         state = create_initial_state(session_id)
     
     # Add the user message
-    state["messages"].append(HumanMessage(content=message))
+    state["messages"] = list(state.get("messages", [])) + [HumanMessage(content=message)]
     
     # Run the agent
     result = await agent.ainvoke(state)
@@ -288,7 +316,7 @@ async def run_agent(
     
     return {
         "response": response_message or "I'm here to listen. How can I support you?",
-        "session_id": result.get("session_id"),
+        "session_id": result.get("session_id", session_id),
         "mood": result.get("current_mood", MoodType.NEUTRAL).value,
         "crisis_level": result.get("crisis_level", CrisisLevel.NONE).value,
         "should_escalate": result.get("should_escalate", False),
