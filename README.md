@@ -106,52 +106,193 @@ psychology-agent/
 
 ---
 
-## 🚀 Quick Start (Docker)
+## 🚀 Complete Setup Guide (Docker)
 
 > **Why Docker?** Works the same on Linux, Windows, and Mac. No "it works on my machine" issues!
 
-### Prerequisites
-- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (Windows/Mac) or Docker Engine (Linux)
-- [Ollama](https://ollama.ai/) (optional, for local LLM)
+### 📋 Prerequisites
 
-### One-Command Setup
+Before you begin, ensure you have the following installed:
 
+| Requirement | Windows/Mac | Linux | Check Command |
+|-------------|-------------|-------|---------------|
+| **Docker** | [Docker Desktop](https://www.docker.com/products/docker-desktop/) | `sudo apt install docker.io` | `docker --version` |
+| **Docker Compose** | Included with Docker Desktop | `sudo apt install docker-compose-plugin` or download from [GitHub](https://github.com/docker/compose/releases) | `docker-compose --version` |
+| **Git** | [Git for Windows](https://git-scm.com/) | `sudo apt install git` | `git --version` |
+
+**Optional:**
+- [Ollama](https://ollama.ai/) - For running LLMs locally (free, no API key needed)
+- Groq API Key - Get free at [console.groq.com](https://console.groq.com)
+- Google Gemini API Key - Get free at [ai.google.dev](https://ai.google.dev)
+
+---
+
+### 🔧 Step-by-Step Installation
+
+#### Step 1: Clone the Repository
 ```bash
-# Clone the repository
-git clone https://github.com/your-org/psychology-agent.git
-cd psychology-agent
+git clone https://github.com/Mithun095/Psychology-Agent.git
+cd Psychology-Agent
+```
 
-# Copy environment file
+#### Step 2: Configure Environment Variables
+```bash
+# Copy the example environment file
 cp .env.example .env
 
-# Start everything with Docker! 🐳
+# Edit .env and add your API keys (optional but recommended)
+nano .env   # or use any text editor
+```
+
+**Inside `.env`, configure:**
+```env
+# At least ONE of these is required for AI responses:
+GROQ_API_KEY=your-groq-api-key-here      # Free: https://console.groq.com
+GOOGLE_API_KEY=your-gemini-api-key-here  # Free: https://ai.google.dev
+
+# These are auto-configured (no changes needed)
+DATABASE_URL=mongodb://mongo:27017/psychology
+REDIS_URL=redis://redis:6379
+```
+
+#### Step 3: Start All Services
+```bash
+# Build and start all containers (first time takes ~5-10 minutes)
+docker-compose up --build
+
+# Or run in background (detached mode)
+docker-compose up -d --build
+```
+
+#### Step 4: Verify Everything is Running
+```bash
+# Check all containers are up
+docker ps
+
+# Expected output: 5 containers running
+# - psychology-frontend
+# - psychology-backend
+# - psychology-agent
+# - psychology-mongo
+# - psychology-redis
+```
+
+---
+
+### 🌐 Access the Application
+
+Once all containers are running, access these URLs in your browser:
+
+| Service | URL | Description |
+|---------|-----|-------------|
+| 🖥️ **Frontend** | http://localhost:3000 | User interface |
+| 🔌 **Backend API** | http://localhost:8000 | REST API endpoints |
+| 📚 **API Docs** | http://localhost:8000/docs | Swagger/OpenAPI documentation |
+| 🤖 **AI Agent** | http://localhost:8001 | AI agent service |
+| 💾 **MongoDB** | localhost:27017 | Database (internal) |
+| ⚡ **Redis** | localhost:6379 | Cache (internal) |
+
+---
+
+### 🧪 Test the AI Agent
+
+You can test the AI agent directly using curl:
+
+```bash
+# Health check
+curl http://localhost:8001/health
+
+# Send a test message
+curl -X POST http://localhost:8001/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "Hello, I am feeling stressed today"}'
+```
+
+**Expected response:**
+```json
+{
+  "response": "I'm here to listen. Can you tell me more about what's causing you stress?",
+  "mood": "anxious",
+  "crisis_level": "none",
+  "should_escalate": false
+}
+```
+
+---
+
+### 🛠️ Docker Commands Reference
+
+```bash
+# ===== STARTING =====
+docker-compose up              # Start all services (foreground)
+docker-compose up -d           # Start in background (detached)
+docker-compose up --build      # Rebuild images and start
+
+# ===== MONITORING =====
+docker ps                      # List running containers
+docker-compose logs -f         # View all logs (follow mode)
+docker-compose logs backend    # View specific service logs
+docker-compose logs agent      # View AI agent logs
+
+# ===== STOPPING =====
+docker-compose stop            # Stop containers (keep data)
+docker-compose down            # Stop and remove containers
+docker-compose down -v         # Stop and remove everything (including data!)
+
+# ===== MAINTENANCE =====
+docker-compose restart         # Restart all services
+docker-compose build --no-cache # Rebuild without cache
+docker system prune -a         # Clean up unused Docker resources
+```
+
+---
+
+### ❗ Troubleshooting
+
+#### Port Already in Use
+```bash
+# If you see "port already in use" error:
+# Check what's using the port (e.g., 27017 for MongoDB)
+sudo lsof -i :27017
+
+# Stop the conflicting service
+sudo systemctl stop mongod  # For system MongoDB
+```
+
+#### Container Won't Start
+```bash
+# Check container logs for errors
+docker-compose logs <service-name>
+
+# Rebuild from scratch
+docker-compose down -v
 docker-compose up --build
 ```
 
-### Access the App
-| Service | URL |
-|---------|-----|
-| Frontend | http://localhost:3000 |
-| Backend API | http://localhost:8000 |
-| API Docs | http://localhost:8000/docs |
-| AI Agent | http://localhost:8001 |
+#### API Keys Not Working
+- Ensure `.env` file exists in the root directory
+- Check that API keys don't have extra spaces or quotes
+- Restart containers after changing `.env`: `docker-compose restart`
 
-### Useful Commands
+---
+
+### 💻 Development Workflow
+
+For active development, the containers mount your local code as volumes, so changes reflect immediately:
+
 ```bash
-# Start in background
+# Start services
 docker-compose up -d
 
-# View logs
-docker-compose logs -f
+# Make code changes locally
+# Changes in frontend/ backend/ agent/ auto-reload
 
-# Stop all services
-docker-compose down
-
-# Rebuild after code changes
+# If you add new dependencies:
 docker-compose up --build
 
-# Remove everything (including data)
-docker-compose down -v
+# View logs while developing
+docker-compose logs -f agent    # Watch AI agent logs
+docker-compose logs -f backend  # Watch backend logs
 ```
 
 ---
