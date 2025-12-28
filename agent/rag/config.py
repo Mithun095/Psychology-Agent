@@ -16,11 +16,11 @@ class RAGSettings(BaseSettings):
     
     # Pinecone
     pinecone_api_key: Optional[str] = None
-    pinecone_index_name: str = "psychology-mental-health"
+    pinecone_index_name: str = "psychology-agent-384"
     pinecone_cloud: str = "aws"
     pinecone_region: str = "us-east-1"
     
-    # Embeddings
+    # Embeddings - all-MiniLM-L6-v2 produces 384 dimensions
     embedding_model: str = "all-MiniLM-L6-v2"  # Sentence-transformers model
     embedding_dimension: int = 384  # Dimension for all-MiniLM-L6-v2
     
