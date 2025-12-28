@@ -43,6 +43,13 @@ class CrisisLevel(str, Enum):
     CRITICAL = "critical"
 
 
+class ConversationPhase(str, Enum):
+    """Phases of the therapeutic conversation."""
+    UNDERSTANDING = "understanding"  # Asking questions, gathering context
+    REFLECTING = "reflecting"        # Summarizing what was heard
+    SUPPORTING = "supporting"        # Offering insights and suggestions
+
+
 class AgentState(TypedDict):
     """LangGraph agent state for mental health conversations."""
     messages: Annotated[List[BaseMessage], add_messages]
@@ -53,6 +60,10 @@ class AgentState(TypedDict):
     crisis_keywords_found: List[str]
     should_escalate: bool
     response_style: str
+    # New fields for context tracking
+    conversation_phase: ConversationPhase
+    turn_count: int
+    context_gathered: List[str]  # Key facts learned about user
 
 
 # ============================================================================
@@ -73,6 +84,15 @@ from tools.mood import analyze_mood, MoodAssessment
 from prompts.system import get_system_prompt, CRISIS_SYSTEM_PROMPT
 from prompts.templates import format_crisis_resources, RESPONSE_TEMPLATES
 from core.config import get_llm
+
+# RAG retriever for grounded responses
+try:
+    from rag.retriever import get_rag_context
+    RAG_AVAILABLE = True
+except ImportError:
+    RAG_AVAILABLE = False
+    def get_rag_context(query: str) -> str:
+        return ""
 
 
 # ============================================================================
@@ -178,10 +198,19 @@ def check_escalation_node(state: AgentState) -> Dict[str, Any]:
 
 
 async def generate_response_node(state: AgentState) -> Dict[str, Any]:
-    """Generate an empathetic response using the LLM."""
+    """Generate an empathetic response using the LLM with RAG grounding."""
     messages = state.get("messages", [])
     current_mood = state.get("current_mood", MoodType.NEUTRAL)
     crisis_level = state.get("crisis_level", CrisisLevel.NONE)
+    turn_count = state.get("turn_count", 0) + 1
+    
+    # Determine conversation phase based on turn count
+    if turn_count <= 4:
+        conversation_phase = ConversationPhase.UNDERSTANDING
+    elif turn_count <= 6:
+        conversation_phase = ConversationPhase.REFLECTING
+    else:
+        conversation_phase = ConversationPhase.SUPPORTING
     
     # Handle critical crisis with immediate intervention
     if crisis_level in [CrisisLevel.CRITICAL, CrisisLevel.HIGH]:
@@ -191,7 +220,26 @@ async def generate_response_node(state: AgentState) -> Dict[str, Any]:
         )
         return {
             "messages": [AIMessage(content=crisis_response)],
+            "turn_count": turn_count,
+            "conversation_phase": conversation_phase,
         }
+    
+    # Get the latest user message for RAG retrieval
+    latest_message = ""
+    for msg in reversed(messages):
+        if isinstance(msg, HumanMessage):
+            latest_message = msg.content
+            break
+    
+    # Get RAG context for grounded responses
+    rag_context = ""
+    if RAG_AVAILABLE and latest_message:
+        try:
+            rag_context = get_rag_context(latest_message)
+            if rag_context:
+                print(f"✓ Retrieved RAG context for response grounding")
+        except Exception as e:
+            print(f"⚠ RAG retrieval error: {e}")
     
     # Get appropriate system prompt
     from prompts.system import MoodType as PromptMoodType, CrisisLevel as PromptCrisisLevel
@@ -200,16 +248,35 @@ async def generate_response_node(state: AgentState) -> Dict[str, Any]:
     prompt_mood = PromptMoodType(current_mood.value)
     prompt_crisis = PromptCrisisLevel(crisis_level.value)
     
+    # Add phase-specific guidance to context
+    phase_guidance = {
+        ConversationPhase.UNDERSTANDING: """
+## CURRENT PHASE: UNDERSTANDING (Turn {turn})
+You are still in the UNDERSTANDING phase. Your PRIMARY goal is to ask a thoughtful question to learn more about their situation. 
+DO NOT give advice yet. Focus on understanding.""",
+        ConversationPhase.REFLECTING: """
+## CURRENT PHASE: REFLECTING (Turn {turn})
+You have gathered some context. Now REFLECT back what you've heard to show understanding.
+Summarize what you've learned and check if you understand correctly.""",
+        ConversationPhase.SUPPORTING: """
+## CURRENT PHASE: SUPPORTING (Turn {turn})
+You now have a good understanding of their situation. You can offer gentle insights, suggestions, or coping strategies.
+Ground your response in what they specifically shared with you.""",
+    }
+    
+    phase_context = phase_guidance.get(conversation_phase, "").format(turn=turn_count)
+    
     system_prompt = get_system_prompt(
         mood=prompt_mood,
         crisis_level=prompt_crisis,
+        include_context=phase_context + "\n" + rag_context if rag_context else phase_context,
     )
     
     # Build messages for LLM
     llm_messages = [SystemMessage(content=system_prompt)]
     
-    # Add conversation history (limit to recent messages)
-    recent_messages = messages[-10:] if len(messages) > 10 else messages
+    # Add conversation history (limit to recent messages for context)
+    recent_messages = messages[-12:] if len(messages) > 12 else messages
     llm_messages.extend(recent_messages)
     
     # Generate response with LLM
@@ -218,16 +285,17 @@ async def generate_response_node(state: AgentState) -> Dict[str, Any]:
         response = await llm.ainvoke(llm_messages)
         response_content = response.content
     except Exception as e:
-        # Fallback to a safe, empathetic default
+        # Fallback to a safe, empathetic default with a question
         print(f"LLM Error: {e}")
         response_content = (
-            "I hear you, and I'm here to listen. Sometimes just sharing "
-            "what's on your mind can help. Would you like to tell me more "
-            "about what you're experiencing?"
+            "I hear you, and I want to understand better. "
+            "Can you tell me more about what's been on your mind?"
         )
     
     return {
         "messages": [AIMessage(content=response_content)],
+        "turn_count": turn_count,
+        "conversation_phase": conversation_phase,
     }
 
 
@@ -283,6 +351,9 @@ def create_initial_state(session_id: str) -> AgentState:
         crisis_keywords_found=[],
         should_escalate=False,
         response_style="supportive",
+        conversation_phase=ConversationPhase.UNDERSTANDING,
+        turn_count=0,
+        context_gathered=[],
     )
 
 
